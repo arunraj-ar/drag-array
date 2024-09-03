@@ -3,6 +3,7 @@ import Card from "./Card"
 
 const Cards = ({data=[]}) => {
     const [cardsList , setCardsList] = useState(data);
+    const [tempList, setTempList] = useState([...data]);
 
     const [targetIndex, setTargetIndex] = useState(null);
     const [sourceIndex, setSourceIndex] = useState(null);
@@ -45,11 +46,12 @@ const Cards = ({data=[]}) => {
         const toIndex = getToIndex(cardsList, card, xDrop, yDrop)
 
         setCardsList((prev) => {
-            const next = [...prev];
+            const next = [...tempList];
             const fromIndex = getFromIndex(next, card)
 
             const [item] = next.splice(fromIndex, 1);
             next.splice(toIndex, 0, item);
+            setTempList([...next])
             return [...next]
         })
     }
@@ -58,24 +60,42 @@ const Cards = ({data=[]}) => {
         const x = e.clientX;
         const y = e.clientY;
         const card = e.target.id;
+        console.log(">>>card: ",card)
         const toIndex = getToIndex(cardsList, card, x, y)
         const fromIndex = getFromIndex(cardsList, card);
         setTargetIndex(toIndex);
         setSourceIndex(fromIndex);
     }
 
-    useEffect(()=> {
-        setCardsList((prev) => {
-            const next = [...prev];
+    const handleDragStart = (e) => {
+        const card = e.target.id;
+        // setCardsList((prev) => {
+        //     const next = [...prev];
+        //     const fromIndex = getFromIndex(next, card)
+        //     next.splice(fromIndex, 1);
+        //     return [...next]
+        // })
+    }
 
-            const [item] = next.splice(sourceIndex, 1);
-            next.splice(targetIndex, 0, item);
-            return [...next]
-        })
+    useEffect(()=> {
+        if(targetIndex && sourceIndex) {
+            setCardsList((prev) => {
+                let next = [...prev];
+                next = next.filter((item) => {
+                    if(item.id === 'dummy') {
+                        return false;
+                    }
+                    return true;
+                })
+                const dummyItem = {id:'dummy', h: 150, w:150, color: 'grey'}
+                next.splice(targetIndex, 0, dummyItem);
+                return [...next]
+            })
+        }
     },[targetIndex, sourceIndex])
 
     return (
-        <div onDragOver={handleDragging} onDragEnd={handleDrag} className="bg-slate-600 flex lg:flex-row p-20 flex-col  min-h-dvh lg:min-h-0.5 lg:min-w-full">
+        <div onDragStart={handleDragStart} onDragOver={handleDragging} onDragEnd={handleDrag} className="bg-slate-600 flex lg:flex-row p-20 flex-col  min-h-dvh lg:min-h-0.5 lg:min-w-full">
             {cardsList.map((card) => <Card key={card.id} {...card} />)}
         </div>
     )

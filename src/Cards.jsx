@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Card from "./Card"
 
 const Cards = ({data=[]}) => {
     const [cardsList , setCardsList] = useState(data);
-
-    const [targetIndex, setTargetIndex] = useState(null);
-    const [sourceIndex, setSourceIndex] = useState(null);
+    const [cardId, setCardId] = useState('');
 
     const getToIndex = (list=[], id='', x=0, y=0) => {
         let targetIdx;
@@ -52,48 +50,29 @@ const Cards = ({data=[]}) => {
             next.splice(toIndex, 0, item);
             return [...next]
         })
+        setCardId('');
     }
 
     const handleDragging = (e) => {
         const x = e.clientX;
         const y = e.clientY;
-        const card = e.target.id;
-        console.log(">>>card: ",card)
-        const toIndex = getToIndex(cardsList, card, x, y)
-        const fromIndex = getFromIndex(cardsList, card);
-        setTargetIndex(toIndex);
-        setSourceIndex(fromIndex);
-    }
+        //e.target can change while onDragOver so use cardId from onDragStart
+        e.preventDefault();
+        e.stopPropagation();
+        const toIndex = getToIndex(cardsList, cardId, x, y);
 
-    const handleDragStart = (e) => {
-        const card = e.target.id;
-        // setCardsList((prev) => {
-        //     const next = [...prev];
-        //     const fromIndex = getFromIndex(next, card)
-        //     next.splice(fromIndex, 1);
-        //     return [...next]
-        // })
-    }
+        setCardsList((prev) => {
+            const next = [...prev];
+            const fromIndex = getFromIndex(next, cardId)
 
-    useEffect(()=> {
-        if(targetIndex && sourceIndex) {
-            setCardsList((prev) => {
-                let next = [...prev];
-                next = next.filter((item) => {
-                    if(item.id === cardsList[sourceIndex].id) {
-                        return false;
-                    }
-                    return true;
-                })
-                const dummyItem = cardsList[sourceIndex]
-                next.splice(targetIndex, 0, dummyItem);
-                return [...next]
-            })
-        }
-    },[targetIndex, sourceIndex])
+            const [item] = next.splice(fromIndex, 1);
+            next.splice(toIndex, 0, item);
+            return [...next]
+        })
+    }
 
     return (
-        <div onDragStart={handleDragStart} onDragOver={handleDragging} onDragEnd={handleDrag} className="bg-slate-600 flex lg:flex-row p-20 flex-col  min-h-dvh lg:min-h-0.5 lg:min-w-full">
+        <div onDragStart={(e) => {setCardId(e.target.id)}} onDragOver={handleDragging} onDragEnd={handleDrag} className="bg-slate-600 flex lg:flex-row p-20 flex-col  min-h-dvh lg:min-h-0.5 lg:min-w-full">
             {cardsList.map((card) => <Card key={card.id} {...card} />)}
         </div>
     )

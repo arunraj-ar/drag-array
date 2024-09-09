@@ -3,7 +3,6 @@ import Card from "./Card"
 
 const Cards = ({data=[]}) => {
     const [cardsList , setCardsList] = useState(data);
-    const [tempList, setTempList] = useState([...data]);
 
     const [targetIndex, setTargetIndex] = useState(null);
     const [sourceIndex, setSourceIndex] = useState(null);
@@ -46,12 +45,11 @@ const Cards = ({data=[]}) => {
         const toIndex = getToIndex(cardsList, card, xDrop, yDrop)
 
         setCardsList((prev) => {
-            const next = [...tempList];
+            const next = [...prev];
             const fromIndex = getFromIndex(next, card)
 
             const [item] = next.splice(fromIndex, 1);
             next.splice(toIndex, 0, item);
-            setTempList([...next])
             return [...next]
         })
     }
@@ -82,12 +80,12 @@ const Cards = ({data=[]}) => {
             setCardsList((prev) => {
                 let next = [...prev];
                 next = next.filter((item) => {
-                    if(item.id === 'dummy') {
+                    if(item.id === cardsList[sourceIndex].id) {
                         return false;
                     }
                     return true;
                 })
-                const dummyItem = {id:'dummy', h: 150, w:150, color: 'grey'}
+                const dummyItem = cardsList[sourceIndex]
                 next.splice(targetIndex, 0, dummyItem);
                 return [...next]
             })

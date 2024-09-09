@@ -72,11 +72,16 @@ const Cards = ({ data = [] }) => {
   return (
     <div
       onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "copyMove";
         setCardId(e.target.id);
       }}
       onDragOver={handleDragging}
       onDragEnd={handleDrag}
-      className="bg-stone-800 flex lg:flex-row p-20 flex-col  min-h-dvh min-w-full items-center"
+      style={{
+        cursor: `${cardId.length > 0  ? "-webkit-grabbing" : "-webkit-grab"}`,
+        cursor: `${cardId.length > 0  ? "grabbing" : "grab"}`,
+      }}
+      className={`bg-stone-800 flex lg:flex-row p-20 flex-col  min-h-dvh min-w-full items-center`}
     >
       {cardsList.map((card) => (
         <Card key={card.id} {...card} />

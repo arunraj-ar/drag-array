@@ -5,7 +5,8 @@ const Card = ({ id, w = 150, h = 150, color = "black" }) => {
   return (
     <div
       id={id}
-      onDragStart={() => {
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "copyMove";
         setIsDragging(true);
       }}
       onDragEnd={() => {
@@ -14,9 +15,15 @@ const Card = ({ id, w = 150, h = 150, color = "black" }) => {
       draggable
       key={id}
       className={`rounded-3xl mb-[10px] lg:mr-[10px] lg:mb-0 transition-opacity ${
-        isDragging ? "opacity-30 cursor-grabbing" : "opacity-100 cursor-grab"
+        isDragging ? "opacity-30" : "opacity-100"
       }`}
-      style={{ height: h, width: w, background: color }}
+      style={{
+        height: h,
+        width: w,
+        background: color,
+        cursor: `${isDragging ? "-webkit-grabbing" : "-webkit-grab"}`,
+        cursor: `${isDragging ? "grabbing" : "grab"}`,
+      }}
     ></div>
   );
 };
